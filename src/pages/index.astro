@@ -1,0 +1,123 @@
+---
+import Layout from "../layout/Layout.astro";
+import {
+  FaPaperPlane,
+  FaPen,
+  FaCompactDisc,
+  FaShoePrints,
+} from "react-icons/fa6";
+const user = Astro.cookies.get("x-user-data");
+const username = user?.value;
+
+if (username) {
+  return Astro.redirect("/notas");
+}
+---
+
+<Layout>
+  <header class="bg-slate-950 min-h-18 py-4 shadow-xl text-white font-bold">
+    <h2 class="text-2xl text-center font-Montserrat">Notaease</h2>
+  </header>
+  <main class="w-full h-[91dvh] grid place-content-center">
+    <section class="bg-slate-950 rounded-lg p-4 font-Poppins text-white">
+      <div>
+        <h1 class="text-2xl md:text-4xl text-center font-bold font-Montserrat">
+          Bienvenido a <span
+            class="text-transparent bg-clip-text bg-gradient-to-br from-sky-300 to-sky-400 my-1"
+            >Notaease</span
+          >
+        </h1>
+        <p class="my-2 text-zinc-200">
+          Aqui podras agregar, editar y borrar notas, solo te registrar con un
+          usuario
+        </p>
+        <ul class="flex flex-col gap-1 px-2 font-light">
+          <li class="flex items-center gap-1">
+            <FaPaperPlane />
+            Crea notas de manera rapida
+          </li>
+          <li class="flex items-center gap-1">
+            <FaPen />
+            Simple y compacto
+          </li>
+          <li class="flex items-center gap-1">
+            <FaCompactDisc />
+            Guarda cosas importantes
+          </li>
+          <li class="flex items-center gap-1">
+            <FaShoePrints />
+            Y mucho mas por venir
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="text-lg text-center font-Montserrat mt-4">
+          Ingresa con un nombre de usuario
+        </h2>
+        <input
+          id="txtUsername"
+          type="text"
+          class="bg-slate-900 rounded border-gray-500 w-full p-1 px-2 mt-4 mb-2 outline-none focus:ring-2 focus:ring-sky-500"
+          placeholder="Nombre de usuario"
+        />
+        <div>
+          <span
+            id="lblError"
+            class="text-center text-wrap w-1/2 text-sm text-red-600 py-1 pb-2"
+          ></span>
+        </div>
+        <button
+          disabled
+          id="btnConfirm"
+          class="disabled:bg-sky-600 disabled:opacity-50 bg-sky-400 text-white w-full px-4 py-2 rounded hover:bg-sky-500 hover:shadow-xl hover:shadow-sky-500/20 transition-all"
+          >Empezar</button
+        >
+      </div>
+    </section>
+  </main>
+</Layout>
+<script>
+  const btn = document.getElementById("btnConfirm") as HTMLButtonElement;
+  const input = document.getElementById("txtUsername") as HTMLInputElement;
+  const errorDiv = document.getElementById("lblError");
+
+  input?.addEventListener("input", () => {
+    const username = input.value;
+    let hayErrores = false;
+
+    if (username.length < 6) {
+      errorDiv?.classList.remove("hidden");
+      errorDiv!.textContent = "El username debe ser de mínimo 6 caracteres";
+      hayErrores = true;
+    } else if (username.length > 16) {
+      errorDiv?.classList.remove("hidden");
+      errorDiv!.textContent = "El username debe ser de máximo 16 caracteres";
+      hayErrores = true;
+    } else {
+      errorDiv?.classList.add("hidden");
+      errorDiv!.textContent = "";
+    }
+
+    btn.disabled = hayErrores;
+  });
+
+  btn.addEventListener("click", () => {
+    crearCookieUsuario(input.value);
+    window.location.assign("/notas");
+  });
+
+  function crearCookieUsuario(username: string) {
+    // Establece el nombre de la cookie
+    let nombreCookie = "x-user-data";
+
+    // Define el tiempo de expiración de la cookie (por ejemplo, 7 días)
+    let diasExpiracion = 7;
+    let fecha = new Date();
+    fecha.setTime(fecha.getTime() + diasExpiracion * 24 * 60 * 60 * 1000);
+    let expiracion = "expires=" + fecha.toUTCString();
+
+    // Crea la cookie
+    document.cookie =
+      nombreCookie + "=" + username + ";" + expiracion + ";path=/";
+  }
+</script>
